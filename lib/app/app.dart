@@ -1,11 +1,15 @@
+import 'package:ai_friend/ui/options/options_view.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
 import '../data/drift_database.dart';
+import '../ui/dashboard/dashboard_view.dart';
 import '../ui/startup/startup_view.dart';
 
 @StackedApp(
   routes: [
     MaterialRoute(page: StartUpView, initial: true),
+    MaterialRoute(page: DashboardView),
+    MaterialRoute(page: OptionsView)
   ],
   dependencies: [
     LazySingleton(classType: NavigationService),

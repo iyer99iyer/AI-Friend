@@ -10,12 +10,18 @@ import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked/stacked_annotations.dart';
 
+import '../ui/dashboard/dashboard_view.dart';
+import '../ui/options/options_view.dart';
 import '../ui/startup/startup_view.dart';
 
 class Routes {
   static const String startUpView = '/';
+  static const String dashboardView = '/dashboard-view';
+  static const String optionsView = '/options-view';
   static const all = <String>{
     startUpView,
+    dashboardView,
+    optionsView,
   };
 }
 
@@ -24,6 +30,8 @@ class StackedRouter extends RouterBase {
   List<RouteDef> get routes => _routes;
   final _routes = <RouteDef>[
     RouteDef(Routes.startUpView, page: StartUpView),
+    RouteDef(Routes.dashboardView, page: DashboardView),
+    RouteDef(Routes.optionsView, page: OptionsView),
   ];
   @override
   Map<Type, StackedRouteFactory> get pagesMap => _pagesMap;
@@ -31,6 +39,18 @@ class StackedRouter extends RouterBase {
     StartUpView: (data) {
       return MaterialPageRoute<dynamic>(
         builder: (context) => const StartUpView(),
+        settings: data,
+      );
+    },
+    DashboardView: (data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => const DashboardView(),
+        settings: data,
+      );
+    },
+    OptionsView: (data) {
+      return MaterialPageRoute<dynamic>(
+        builder: (context) => const OptionsView(),
         settings: data,
       );
     },
