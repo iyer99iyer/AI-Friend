@@ -55,6 +55,10 @@ dependencies:
   #fonts
   google_fonts: ^2.3.1
 
+  #text to speech
+  speech_to_text:
+  avatar_glow:
+
   #Expandable Floating action Button
   #  flutter_speed_dial: ^5.1.0
 
