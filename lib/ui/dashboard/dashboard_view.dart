@@ -17,15 +17,18 @@ class DashboardView extends StatelessWidget {
                 shrinkWrap: true,
                 itemCount: model.getConversationTiles.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return Card(
-                    child: ListTile(
-                      leading: CircleAvatar(
-                          // backgroundColor: Color(0xFF000000)
-                        child: model.getConversationTiles[index].categoryIcon,
-                        ),
-                      title: Text(model.getConversationTiles[index].categoryName),
-                      subtitle: Text(model.getConversationTiles[index].lastConversation),
-                      trailing: Text(model.getConversationTiles[index].lastConversationDateTime.minute.toString()),
+                  return InkWell(
+                    onTap: ()=>model.navigateToConversationPage(model.getConversationTiles[index].categoryName),
+                    child: Card(
+                      child: ListTile(
+                        leading: CircleAvatar(
+                            // backgroundColor: Color(0xFF000000)
+                          child: model.getConversationTiles[index].categoryIcon,
+                          ),
+                        title: Text(model.getConversationTiles[index].categoryName),
+                        subtitle: Text(model.getConversationTiles[index].lastConversation),
+                        trailing: Text(model.getConversationTiles[index].lastConversationDateTime.minute.toString()),
+                      ),
                     ),
                   );
                 }),

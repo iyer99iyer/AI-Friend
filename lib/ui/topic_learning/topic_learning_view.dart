@@ -1,7 +1,10 @@
+import 'package:ai_friend/model/conversation_model.dart';
 import 'package:ai_friend/ui/topic_learning/topic_learning_viewmodel.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:grouped_list/grouped_list.dart';
+import 'package:intl/intl.dart';
 import 'package:stacked/stacked.dart';
 
 class TopicLearningView extends StatelessWidget {
@@ -21,9 +24,45 @@ class TopicLearningView extends StatelessWidget {
                 children: [
                   Expanded(
                     flex: 5,
-                    child: Container(
-                      color: Colors.white,
-                    ),
+                    child: GroupedListView<Conversation,DateTime>(
+                      padding: const EdgeInsets.all(8),
+                      reverse: true,
+                      order: GroupedListOrder.DESC,
+                      useStickyGroupSeparators: true,
+                      floatingHeader: true,
+                      elements: model.conversations,
+                      groupBy: (conversation)=>DateTime(
+                        conversation.currentDateTime.year,
+                        conversation.currentDateTime.month,
+                        conversation.currentDateTime.day,
+                      ),
+                      groupHeaderBuilder: (Conversation conversation) => SizedBox(
+                        height: 40,
+                        child: Center(
+                          child: Card(
+                            color: Theme.of(context).primaryColor,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(
+                                DateFormat.yMMMd().format(conversation.currentDateTime),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      itemBuilder: (context, Conversation conversation) => Align(
+                        alignment: conversation.type == 'human'
+                            ?Alignment.centerRight
+                            :Alignment.centerLeft,
+                        child: Card(
+                          elevation: 8,
+                          child: Padding(padding: const EdgeInsets.all(12),
+                            child: Text(conversation.sentence),
+                          ),
+                        ),
+                      ),
+                    )
                   ),
                   // Voice recognition Container
                   Expanded(
