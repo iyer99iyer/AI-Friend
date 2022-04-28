@@ -10,31 +10,50 @@ class TopicLearningViewModel extends BaseViewModel {
 
   late stt.SpeechToText _speech;
   bool _isListening = false;
-  String _text = 'Press the button and start speaking';
+  String _textHint = 'Hello how are you doing';
+  String _textListening = '';
   double _confidence = 1.0;
 
   bool get isListening => _isListening;
-  String get text => _text;
+  String get textHint => _textHint;
+  String get textListening => _textListening;
   double get confidence => _confidence;
 
   Future init() async {
     _speech = stt.SpeechToText();
   }
 
+  onTapSendButton() {
+    _textListening = _textListening.trim();
+    print('_textListening : ${_textListening.toUpperCase()} == _textHint : ${_textHint.toUpperCase()}');
+    if(_textListening.toUpperCase() == _textHint.toUpperCase()) {
+      print('true');
+      _textListening = '';
+    }else
+      {
+        print('_textListening : ${_textListening.toUpperCase()} == _textHint : ${_textHint.toUpperCase()}');
+      }
+    notifyListeners();
+  }
+
   listen() async {
     if (!_isListening) {
+      _textListening = '';
+      notifyListeners();
       bool available = await _speech.initialize(
           onStatus: (val) {
             print('onStatus: $val');
-            if (val == 'done') _isListening = false;
-            notifyListeners();
+            if (val == 'done') {
+              _isListening = false;
+              notifyListeners();
+            }
           },
           onError: (val) => print('onError: $val'));
       if (available) {
         _isListening = true;
         notifyListeners();
         _speech.listen(onResult: (val) {
-          _text = val.recognizedWords;
+          _textListening = val.recognizedWords;
           if (val.hasConfidenceRating && val.confidence > 0) {
             _confidence = val.confidence;
           }
@@ -47,4 +66,6 @@ class TopicLearningViewModel extends BaseViewModel {
       _speech.stop();
     }
   }
+
+
 }
