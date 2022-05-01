@@ -11,7 +11,14 @@ class DashboardView extends StatelessWidget {
     return ViewModelBuilder<DashboardViewModel>.reactive(
         onModelReady: (model) => model.init(),
         builder: (context, model, child) => Scaffold(
-          appBar: AppBar(title: Text('AI Friend'),),
+          appBar: AppBar(
+            title: Text('AI Friend'),
+            actions: [
+              IconButton(onPressed: (){
+                model.signOut();
+              }, icon: Icon(Icons.logout))
+            ],
+          ),
             body: ListView.builder(
                 clipBehavior: Clip.hardEdge,
                 shrinkWrap: true,

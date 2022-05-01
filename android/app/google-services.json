@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "335899251817",
+    "project_id": "ai-friend-8737a",
+    "storage_bucket": "ai-friend-8737a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:335899251817:android:c84eaa6489aa14fd233ef8",
+        "android_client_info": {
+          "package_name": "com.ninjastudy.ai_friend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "335899251817-6odi0r7vigo72lpmqd1p0tnm4iu1esre.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ninjastudy.ai_friend",
+            "certificate_hash": "6d2148220a38dd8f64034ab5dfa1ecc0e5d757d1"
+          }
+        },
+        {
+          "client_id": "335899251817-icmq5et8ea6dlqlk4guu25o1p0ho6ns4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8CLKgW1xaKiOryNZK1N5ZgiC68RJy9AU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "335899251817-icmq5et8ea6dlqlk4guu25o1p0ho6ns4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

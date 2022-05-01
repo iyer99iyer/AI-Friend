@@ -6,10 +6,12 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import '../../app/app.locator.dart';
+import '../../services/google_sign_in_service.dart';
 
 class DashboardViewModel extends BaseViewModel{
 
   final _navigationService = locator<NavigationService>();
+  final _googleSignInService = locator<GoogleSignInService>();
 
   Future init() async{
 
@@ -31,5 +33,10 @@ class DashboardViewModel extends BaseViewModel{
 
   navigateToConversationPage(String categoryName) {
     _navigationService.navigateToView(TopicLearningView(topicName: categoryName));
+  }
+
+  Future<void> signOut() async {
+    await _googleSignInService.googleSignOut();
+    _navigationService.pushNamedAndRemoveUntil(Routes.loginView);
   }
 }

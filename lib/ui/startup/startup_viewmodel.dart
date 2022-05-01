@@ -13,6 +13,6 @@ class StartupViewModel extends BaseViewModel{
   }
 
   void doSomething(){
-    _navigationService.navigateTo(Routes.dashboardView);
+    _navigationService.navigateTo(Routes.signupView);
   }
 }
