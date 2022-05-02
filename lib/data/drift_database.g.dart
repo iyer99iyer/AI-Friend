@@ -196,9 +196,7 @@ class $MembersTable extends Members with TableInfo<$MembersTable, Member> {
   @override
   late final GeneratedColumn<String?> name = GeneratedColumn<String?>(
       'name', aliasedName, false,
-      additionalChecks: GeneratedColumn.checkTextLength(maxTextLength: 8),
-      type: const StringType(),
-      requiredDuringInsert: true);
+      type: const StringType(), requiredDuringInsert: true);
   final VerificationMeta _emailAddressMeta =
       const VerificationMeta('emailAddress');
   @override

@@ -30,7 +30,7 @@ class LoginViewModel extends BaseViewModel{
     MembersCompanion membersCompanion = await _googleSignInService.signInWithGoogle();
     if (membersCompanion != null){
       List<Member> members = await MembersDao(_database).searchMember(membersCompanion);
-      if(members == []){
+      if(members.isEmpty){
         await MembersDao(_database).insertMember(membersCompanion);
       }
       navigateToDashboard();

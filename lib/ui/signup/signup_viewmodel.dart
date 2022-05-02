@@ -41,7 +41,7 @@ class SignupViewModel extends BaseViewModel {
     if (membersCompanion != null) {
       List<Member> members =
           await MembersDao(_database).searchMember(membersCompanion);
-      if (members == []) {
+      if (members.isEmpty) {
         await MembersDao(_database).insertMember(membersCompanion);
       }
       navigateToDashboard();
@@ -137,10 +137,10 @@ class SignupViewModel extends BaseViewModel {
           await MembersDao(_database).searchMember(membersCompanion);
       if (members.isEmpty) {
         await MembersDao(_database).insertMember(membersCompanion);
+        navigateToDashboard();
       }else{
         navigateToLogin();
       }
-      navigateToDashboard();
     }
   }
 

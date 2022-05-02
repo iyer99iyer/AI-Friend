@@ -14,7 +14,7 @@ class MembersDao extends DatabaseAccessor<MyDatabase> with _$MembersDaoMixin {
   Future searchMember(MembersCompanion membersCompanion) => (select(members)
         ..where(
           (member) => member.emailAddress.equals(
-            membersCompanion.emailAddress.toString(),
+            membersCompanion.emailAddress.value.toString(),
           ),
         ))
       .get();
