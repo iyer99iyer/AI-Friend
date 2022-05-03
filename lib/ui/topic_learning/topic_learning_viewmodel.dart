@@ -1,4 +1,5 @@
-import 'package:ai_friend/model/conversation_model.dart';
+import 'package:drift/drift.dart' as drift;
+import 'package:ai_friend/data/DAOs/conversation_dao/conversation_dao.dart';
 import 'package:ai_friend/ui/shared/constants.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -6,14 +7,23 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 import '../../app/app.locator.dart';
 import '../../app/app.router.dart';
+import '../../data/DAOs/const_conversation_dao/const_conversation_dao.dart';
+import '../../data/database_tables/const_conversation_table.dart';
+import '../../data/drift_database.dart';
 
 class TopicLearningViewModel extends BaseViewModel {
   final _navigationService = locator<NavigationService>();
+  final _database = locator<MyDatabase>();
 
   late stt.SpeechToText _speech;
-  List<Conversation> _conversations = [];
+  List<ConversationsCompanion> _conversations = [];
+  // List<Conversation> _doneConversations = [];
+  late String _topicName;
   bool _isListening = false;
-  String _textHint = 'Hello how are you doing';
+  late String _textHint;
+  late ConstConversationsCompanion _humanConversation;
+  late ConstConversationsCompanion _botConversation;
+  late int _addBotConversationID;
   String _textListening = '';
   double _confidence = 1.0;
 
@@ -21,30 +31,98 @@ class TopicLearningViewModel extends BaseViewModel {
   String get textHint => _textHint;
   String get textListening => _textListening;
   double get confidence => _confidence;
-  List<Conversation> get conversations => _conversations;
+  // List<Conversation> get conversations => _conversations;
+  // List<Conversation> get doneConversations => _doneConversations;
 
-  Future init() async {
+  Future init({required String topicName}) async {
     _speech = stt.SpeechToText();
-    _conversations = constConversations;
+    _topicName = topicName;
+    // _conversations = constConversations;
+    await moveNextConversationSentence();
+    notifyListeners();
   }
 
-  onTapSendButton() {
+  moveNextConversationSentence() async {
+    // TODO: get first const conversation to bot variable (done = false)
+    _botConversation = convertConstConversationsToConstConversationsCompanion(
+        await getAllNotDoneConstConversationStream()
+            .first
+            .then((value) => value.first));
+    // TODO: update first const conversation (bot) done => true
+    await updateConstConversation(_botConversation.copyWith(
+      done: drift.Value(true),
+      conversationDateTime: drift.Value(DateTime.now()),
+    ));
+    // TODO: insert to conversation from first const conversation (bot) done => true
+    _addBotConversationID = await insertConversation(
+      convertConstConversationsCompanionToConversationCompanion(
+        _botConversation.copyWith(
+          id: drift.Value.absent(),
+          done: drift.Value(true),
+          conversationDateTime: drift.Value(DateTime.now()),
+        ),
+      ),
+    );
+    notifyListeners();
+    // TODO: get first const conversation to human variable (done = false)
+    _humanConversation = convertConstConversationsToConstConversationsCompanion(
+        await getAllNotDoneConstConversationStream()
+            .first
+            .then((value) => value.first));
+    _textHint = _humanConversation.sentence.value;
+    notifyListeners();
+  }
+
+  onTapSendButton() async {
+    // trimming the _textListening
     _textListening = _textListening.trim();
 
-    _conversations.add(Conversation(sentence: _textListening, type: 'human', currentDateTime: DateTime.now(), option: 'restaurant'));
+    // TODO: insert the text human has spoken to conversation table
+    insertConversation(convertValueToConversationCompanion(
+        _textListening, 'human', _topicName, true));
 
-    print('_textListening : ${_textListening.toUpperCase()} == _textHint : ${_textHint.toUpperCase()}');
+    notifyListeners();
 
+    //test
+    // print(
+    //     '_textListening : ${_textListening.toUpperCase()} == _textHint : ${_textHint.toUpperCase()}');
 
-    if(_textListening.toUpperCase() == _textHint.toUpperCase()) {
+    if (_textListening.toUpperCase() ==
+        _textHint.replaceAll(',', '').toUpperCase()) {
       print('true');
-      _conversations.add(Conversation(sentence: 'You have correctly said', type: 'bot', currentDateTime: DateTime.now(), option: 'restaurant'));
 
-    }else
-      {
-        _conversations.add(Conversation(sentence: 'Please try again', type: 'bot', currentDateTime: DateTime.now(), option: 'restaurant'));
-        print('_textListening : ${_textListening.toUpperCase()} == _textHint : ${_textHint.toUpperCase()}');
-      }
+      // TODO: insert the text bot has spoken to conversation table if correct
+      await insertConversation(convertValueToConversationCompanion(
+          'You have correctly said', 'bot', _topicName, true));
+
+      // TODO: update the human statement in const Conversation (done => true)
+      await updateConstConversation(_humanConversation.copyWith(
+        done: drift.Value(true),
+        conversationDateTime: drift.Value(DateTime.now()),
+      ));
+
+      notifyListeners();
+      await moveNextConversationSentence();
+      notifyListeners();
+    } else {
+      // TODO: insert bot to conversation to try again
+      await insertConversation(convertValueToConversationCompanion(
+          'Please try again', 'bot', _topicName, true));
+      // TODO: insert bot to conversation from const conversation (previous)
+      await insertConversation(
+        convertConstConversationsCompanionToConversationCompanion(
+          _botConversation.copyWith(
+            id: drift.Value.absent(),
+            done: drift.Value(true),
+            conversationDateTime: drift.Value(DateTime.now()),
+          ),
+        ),
+      );
+
+      notifyListeners();
+
+      // print('_textListening : ${_textListening.toUpperCase()} == _textHint : ${_textHint.toUpperCase()}');
+    }
     _textListening = '';
     notifyListeners();
   }
@@ -54,14 +132,19 @@ class TopicLearningViewModel extends BaseViewModel {
       _textListening = '';
       notifyListeners();
       bool available = await _speech.initialize(
-          onStatus: (val) {
-            print('onStatus: $val');
-            if (val == 'done') {
+          onStatus: (status) {
+            if (status == 'done' || status == 'notListening') {
               _isListening = false;
+              print(_isListening);
               notifyListeners();
             }
+            print('onStatus: $status');
           },
-          onError: (val) => print('onError: $val'));
+          onError: (val) { print('onError: $val');
+          _isListening = false;
+          notifyListeners();
+          }
+      );
       if (available) {
         _isListening = true;
         notifyListeners();
@@ -78,6 +161,103 @@ class TopicLearningViewModel extends BaseViewModel {
       notifyListeners();
       _speech.stop();
     }
+  }
+
+  getAllDoneConversationStream() {
+    return ConversationsDao(_database).getDoneAllConversationStream(_topicName);
+  }
+
+  insertConversation(ConversationsCompanion conversationsCompanion) async {
+    return await ConversationsDao(_database)
+        .insertConversation(conversationsCompanion);
+  }
+
+  deleteConversation(ConversationsCompanion conversationsCompanion) async {
+    await ConversationsDao(_database)
+        .deleteConversation(conversationsCompanion);
+  }
+
+  Stream<List<ConstConversation>> getAllNotDoneConstConversationStream() {
+    return ConstConversationsDao(_database)
+        .getAllConversationNotDoneStream(_topicName);
+  }
+
+  updateConstConversation(
+      ConstConversationsCompanion constConversationsCompanion) async {
+    await ConstConversationsDao(_database)
+        .updateConversation(constConversationsCompanion);
+  }
+
+  ConversationsCompanion convertConversationToConversationsCompanion(
+      Conversation conversation) {
+    return ConversationsCompanion(
+      id: drift.Value(conversation.id),
+      sentence: drift.Value(conversation.sentence),
+      option: drift.Value(conversation.option),
+      conversationDateTime: drift.Value(conversation.conversationDateTime),
+      type: drift.Value(conversation.type),
+      done: drift.Value(conversation.done),
+    );
+  }
+
+  ConstConversationsCompanion
+      convertConstConversationsToConstConversationsCompanion(
+          ConstConversation constConversation) {
+    return ConstConversationsCompanion(
+      id: drift.Value(constConversation.id),
+      sentence: drift.Value(constConversation.sentence),
+      option: drift.Value(constConversation.option),
+      conversationDateTime: drift.Value(constConversation.conversationDateTime),
+      type: drift.Value(constConversation.type),
+      done: drift.Value(constConversation.done),
+    );
+  }
+
+  ConversationsCompanion convertValueToConversationCompanion(
+      String sentence, String type, String option, bool done) {
+    return ConversationsCompanion(
+      sentence: drift.Value(sentence),
+      type: drift.Value(type),
+      conversationDateTime: drift.Value(DateTime.now()),
+      option: drift.Value(option),
+      done: drift.Value(done),
+    );
+  }
+
+  ConversationsCompanion
+      convertConstConversationsCompanionToConversationCompanion(
+          ConstConversationsCompanion constConversationsCompanion) {
+    return ConversationsCompanion(
+      id: constConversationsCompanion.id,
+      sentence: constConversationsCompanion.sentence,
+      option: constConversationsCompanion.option,
+      conversationDateTime: constConversationsCompanion.conversationDateTime,
+      done: constConversationsCompanion.done,
+      type: constConversationsCompanion.type,
+    );
+  }
+
+  onDisposed() async {
+
+    _isListening = false;
+
+    // TODO: update first const conversation (bot) done => false
+    await updateConstConversation(_botConversation.copyWith(
+      done: drift.Value(false),
+      conversationDateTime: drift.Value(DateTime.now()),
+    ));
+
+    // TODO: delete the record from conversation table
+    await deleteConversation(
+        convertConstConversationsCompanionToConversationCompanion(
+          _botConversation.copyWith(
+            id: drift.Value(_addBotConversationID),
+            done: drift.Value(true),
+            conversationDateTime: drift.Value(DateTime.now()),
+          ),
+        ),
+    );
+
   }
 
 

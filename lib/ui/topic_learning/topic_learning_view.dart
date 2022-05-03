@@ -1,4 +1,3 @@
-import 'package:ai_friend/model/conversation_model.dart';
 import 'package:ai_friend/ui/topic_learning/topic_learning_viewmodel.dart';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:grouped_list/grouped_list.dart';
 import 'package:intl/intl.dart';
 import 'package:stacked/stacked.dart';
+
+import '../../data/drift_database.dart';
 
 class TopicLearningView extends StatelessWidget {
   final String topicName;
@@ -15,7 +16,10 @@ class TopicLearningView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<TopicLearningViewModel>.reactive(
-        onModelReady: (model) => model.init(),
+        onModelReady: (model) {
+          model.init(topicName:this.topicName);
+          print('init!');
+        },
         builder: (context, model, child) => Scaffold(
               appBar: AppBar(
                 title: Text(topicName),
@@ -24,41 +28,46 @@ class TopicLearningView extends StatelessWidget {
                 children: [
                   Expanded(
                     flex: 5,
-                    child: GroupedListView<Conversation,DateTime>(
-                      padding: const EdgeInsets.all(8),
-                      reverse: true,
-                      order: GroupedListOrder.DESC,
-                      useStickyGroupSeparators: true,
-                      floatingHeader: true,
-                      elements: model.conversations,
-                      groupBy: (conversation)=>DateTime(
-                        conversation.currentDateTime.year,
-                        conversation.currentDateTime.month,
-                        conversation.currentDateTime.day,
-                      ),
-                      groupHeaderBuilder: (Conversation conversation) => SizedBox(
-                        height: 40,
-                        child: Center(
-                          child: Card(
-                            color: Theme.of(context).primaryColor,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8),
-                              child: Text(
-                                DateFormat.yMMMd().format(conversation.currentDateTime),
-                                style: const TextStyle(color: Colors.white),
+                    child: StreamBuilder(
+                      initialData: [],
+                      stream: model.getAllDoneConversationStream(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<dynamic> snapshot)=> GroupedListView<Conversation,DateTime>(
+                        padding: const EdgeInsets.all(8),
+                        reverse: true,
+                        order: GroupedListOrder.DESC,
+                        useStickyGroupSeparators: true,
+                        floatingHeader: true,
+                        elements: snapshot.data,
+                        groupBy: (conversation)=>DateTime(
+                          conversation.conversationDateTime.year,
+                          conversation.conversationDateTime.month,
+                          conversation.conversationDateTime.day,
+                        ),
+                        groupHeaderBuilder: (Conversation conversation) => SizedBox(
+                          height: 40,
+                          child: Center(
+                            child: Card(
+                              color: Theme.of(context).primaryColor,
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Text(
+                                  DateFormat.yMMMd().format(conversation.conversationDateTime),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      itemBuilder: (context, Conversation conversation) => Align(
-                        alignment: conversation.type == 'human'
-                            ?Alignment.centerRight
-                            :Alignment.centerLeft,
-                        child: Card(
-                          elevation: 8,
-                          child: Padding(padding: const EdgeInsets.all(12),
-                            child: Text(conversation.sentence),
+                        itemBuilder: (context, Conversation conversation) => Align(
+                          alignment: conversation.type == 'human'
+                              ?Alignment.centerRight
+                              :Alignment.centerLeft,
+                          child: Card(
+                            elevation: 8,
+                            child: Padding(padding: const EdgeInsets.all(12),
+                              child: Text(conversation.sentence),
+                            ),
                           ),
                         ),
                       ),
@@ -79,7 +88,7 @@ class TopicLearningView extends StatelessWidget {
                               ),
                             ),
                             child: SingleChildScrollView(
-                              reverse: true,
+                              reverse: model.textListening == '' ?false:true,
                               child:  Container(
                                 padding: const EdgeInsets.fromLTRB(30, 30, 30, 150),
                                 width: double.infinity,
@@ -147,6 +156,8 @@ class TopicLearningView extends StatelessWidget {
               floatingActionButtonLocation:
                   FloatingActionButtonLocation.centerDocked,
             ),
-        viewModelBuilder: () => TopicLearningViewModel());
+        viewModelBuilder: () => TopicLearningViewModel(),
+        onDispose: (model)=> model.onDisposed(),
+    );
   }
 }

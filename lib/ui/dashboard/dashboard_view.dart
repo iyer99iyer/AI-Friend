@@ -19,26 +19,35 @@ class DashboardView extends StatelessWidget {
               }, icon: Icon(Icons.logout))
             ],
           ),
-            body: ListView.builder(
-                clipBehavior: Clip.hardEdge,
-                shrinkWrap: true,
-                itemCount: model.getConversationTiles.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return InkWell(
-                    onTap: ()=>model.navigateToConversationPage(model.getConversationTiles[index].categoryName),
-                    child: Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                            // backgroundColor: Color(0xFF000000)
-                          child: model.getConversationTiles[index].categoryIcon,
-                          ),
-                        title: Text(model.getConversationTiles[index].categoryName),
-                        subtitle: Text(model.getConversationTiles[index].lastConversation),
-                        trailing: Text(model.getConversationTiles[index].lastConversationDateTime.minute.toString()),
+            body: StreamBuilder(
+                initialData: [],
+                stream: model.getAllDoneConversationStream(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<dynamic> snapshot)=> snapshot.data.length != 0?
+              ListView.builder(
+                  clipBehavior: Clip.hardEdge,
+                  shrinkWrap: true,
+                  itemCount: model.getConversationTiles.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      onTap: ()=>model.navigateToConversationPage(model.getConversationTiles[index].categoryName),
+                      child: Card(
+                        child: ListTile(
+                          leading: CircleAvatar(
+                              // backgroundColor: Color(0xFF000000)
+                            child: model.getConversationTiles[index].categoryIcon,
+                            ),
+                          title: Text(model.getConversationTiles[index].categoryName),
+                          subtitle: Text(model.getConversationTiles[index].lastConversation),
+                          trailing: IconButton(icon: Icon(Icons.delete), onPressed: () => model.deleteAllConversationFor('restaurant'),),
+                        ),
                       ),
-                    ),
-                  );
-                }),
+                    );
+                  })
+           :Container(
+              height: double.infinity,
+              child: Center(child: Text('Please Start a new conversation!!!')),
+            ), ),
           bottomNavigationBar: GestureDetector(
             onTap: ()=>model.navigateToNewConversationPage(),
             child: Container(

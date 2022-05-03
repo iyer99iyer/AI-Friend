@@ -5,7 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked/stacked_annotations.dart';
 
-import '../startup/widgets/integration_login_button.dart';
+import '../widgets/integration_login_button.dart';
+
 
 @FormView(fields: [
   FormTextField(name: 'email'),

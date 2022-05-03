@@ -12,9 +12,9 @@ class OptionsViewModel extends BaseViewModel{
   final _navigationService = locator<NavigationService>();
 
   List<Option> _options = [
-    Option(categoryName: 'Restaurant', categoryIcon: Icons.restaurant),
-    Option(categoryName: 'Hospital', categoryIcon: Icons.local_hospital),
-    Option(categoryName: 'Shop', categoryIcon: Icons.store_mall_directory),
+    Option(categoryName: 'restaurant', categoryIcon: Icons.restaurant),
+    Option(categoryName: 'hospital', categoryIcon: Icons.local_hospital),
+    Option(categoryName: 'shop', categoryIcon: Icons.store_mall_directory),
   ];
 
   List<Option> get options => _options;

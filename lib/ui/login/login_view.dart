@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked/stacked_annotations.dart';
 
-import '../startup/widgets/integration_login_button.dart';
+import '../widgets/integration_login_button.dart';
 import 'login_view.form.dart';
 import 'login_viewmodel.dart';
 
