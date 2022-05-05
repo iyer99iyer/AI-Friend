@@ -1,4 +1,5 @@
 import 'package:ai_friend/data/DAOs/conversation_dao/conversation_dao.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -26,10 +27,14 @@ class StartupViewModel extends BaseViewModel{
       }
     }else{
       print(constConversationList.first);
-
     }
 
-
+    // Check whether user already logged in
+    if(await checkUserLoggedIn()){
+      _navigationService.navigateTo(Routes.dashboardView);
+    }else{
+      _navigationService.navigateTo(Routes.loginView);
+    }
 
     // For(Conversation conversation in conversationListStream.)
 
@@ -37,5 +42,16 @@ class StartupViewModel extends BaseViewModel{
 
   void doSomething(){
     _navigationService.navigateTo(Routes.signupView);
+  }
+
+  Future<bool> checkUserLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    final loggedIn = prefs.getBool(LOGGEDIN);
+    print("user logged in: $loggedIn");
+    if(loggedIn != null){
+      return loggedIn;
+    }else{
+      return false;
+    }
   }
 }

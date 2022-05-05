@@ -1,4 +1,5 @@
 import 'package:flutter/src/widgets/editable_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -7,6 +8,7 @@ import '../../app/app.router.dart';
 import '../../data/DAOs/member_dao/member_dao.dart';
 import '../../data/drift_database.dart';
 import '../../services/google_sign_in_service.dart';
+import '../shared/constants.dart';
 
 class LoginViewModel extends BaseViewModel{
 
@@ -33,12 +35,13 @@ class LoginViewModel extends BaseViewModel{
       if(members.isEmpty){
         await MembersDao(_database).insertMember(membersCompanion);
       }
+      await userLoggedInRecord();
       navigateToDashboard();
     }
   }
 
   void navigateToDashboard(){
-    _navigationService.navigateTo(Routes.dashboardView);
+    _navigationService.pushNamedAndRemoveUntil(Routes.dashboardView);
   }
 
   validateEmail() {
@@ -79,6 +82,7 @@ class LoginViewModel extends BaseViewModel{
       print('members: ${members}');
       if(members.isNotEmpty){
         if(_passwordController.text == (members[0].password)){
+          await userLoggedInRecord();
           navigateToDashboard();
         }else{
           _passwordController.text = '';
@@ -99,6 +103,13 @@ class LoginViewModel extends BaseViewModel{
     for(Member member in members){
       print(member.emailAddress);
     }
+  }
+
+  userLoggedInRecord() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(LOGGEDIN, true);
+    final loggedIn = prefs.getBool(LOGGEDIN);
+    print("user logged in: $loggedIn");
   }
 
 }

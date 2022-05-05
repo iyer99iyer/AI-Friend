@@ -18,3 +18,5 @@ final List<ConstConversationsCompanion> constConversations = [
   ConstConversationsCompanion(sentence: Value('Would you like some water?'), type: Value('bot'), conversationDateTime: Value(DateTime.now()), option: Value('restaurant'), done: Value(false)),
   ConstConversationsCompanion(sentence: Value('Yes, please'), type: Value('human'), conversationDateTime: Value(DateTime.now()), option: Value('restaurant'), done: Value(false)),
 ];
+
+const LOGGEDIN = 'loggedin';

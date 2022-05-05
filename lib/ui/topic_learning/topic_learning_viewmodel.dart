@@ -31,6 +31,7 @@ class TopicLearningViewModel extends BaseViewModel {
   String get textHint => _textHint;
   String get textListening => _textListening;
   double get confidence => _confidence;
+  stt.SpeechToText get speech => _speech;
   // List<Conversation> get conversations => _conversations;
   // List<Conversation> get doneConversations => _doneConversations;
 
@@ -125,6 +126,7 @@ class TopicLearningViewModel extends BaseViewModel {
     }
     _textListening = '';
     notifyListeners();
+
   }
 
   listen() async {
@@ -161,9 +163,10 @@ class TopicLearningViewModel extends BaseViewModel {
       notifyListeners();
       _speech.stop();
     }
+    notifyListeners();
   }
 
-  getAllDoneConversationStream() {
+  Stream<List<Conversation>>getAllDoneConversationStream() {
     return ConversationsDao(_database).getDoneAllConversationStream(_topicName);
   }
 

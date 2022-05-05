@@ -17,12 +17,8 @@ const StartUpView({Key? key}) : super(key: key);
                 //
                 padding:const EdgeInsets.symmetric(horizontal: 20.0,vertical: 5.0),
                 width: 100,
-                height: 50,
-                child: const Center(child: Text('Login',style: TextStyle(color: Colors.white),)),
-                decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(16)
-                ),
+                height: 100,
+                child: CircularProgressIndicator()
               ),
             ),
           )

@@ -28,7 +28,7 @@ class TopicLearningView extends StatelessWidget {
                 children: [
                   Expanded(
                     flex: 5,
-                    child: StreamBuilder(
+                    child: StreamBuilder<List<Conversation>>(
                       initialData: [],
                       stream: model.getAllDoneConversationStream(),
                       builder: (BuildContext context,
@@ -142,7 +142,7 @@ class TopicLearningView extends StatelessWidget {
                 ],
               ),
               floatingActionButton: AvatarGlow(
-                animate: model.isListening,
+                animate: model.speech.isListening,
                 glowColor: Theme.of(context).primaryColor,
                 endRadius: 75.0,
                 duration: const Duration(milliseconds: 2000),

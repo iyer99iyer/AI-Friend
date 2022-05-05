@@ -1,8 +1,10 @@
+import 'package:ai_friend/ui/shared/constants.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:ai_friend/data/DAOs/member_dao/member_dao.dart';
 import 'package:ai_friend/data/drift_database.dart';
 import 'package:ai_friend/services/google_sign_in_service.dart';
 import 'package:flutter/src/widgets/editable_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -44,12 +46,13 @@ class SignupViewModel extends BaseViewModel {
       if (members.isEmpty) {
         await MembersDao(_database).insertMember(membersCompanion);
       }
+      await userLoggedInRecord();
       navigateToDashboard();
     }
   }
 
   void navigateToDashboard() {
-    _navigationService.navigateTo(Routes.dashboardView);
+    _navigationService.pushNamedAndRemoveUntil(Routes.dashboardView);
   }
   void navigateToLogin() {
     _navigationService.navigateTo(Routes.loginView);
@@ -103,7 +106,7 @@ class SignupViewModel extends BaseViewModel {
       return 'Please enter password';
     } else {
       if (!regex.hasMatch(_passwordController.text)) {
-        return 'Enter valid password';
+        return 'Enter valid password (Password should contain \n1 Upper case, \n1 Lower case, \n1 number, \n1 special character and \n8 char long)';
       } else {
         return null;
       }
@@ -137,11 +140,19 @@ class SignupViewModel extends BaseViewModel {
           await MembersDao(_database).searchMember(membersCompanion);
       if (members.isEmpty) {
         await MembersDao(_database).insertMember(membersCompanion);
+        await userLoggedInRecord();
         navigateToDashboard();
       }else{
         navigateToLogin();
       }
     }
+  }
+
+  userLoggedInRecord() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(LOGGEDIN, true);
+    final loggedIn = prefs.getBool(LOGGEDIN);
+    print("user logged in: $loggedIn");
   }
 
 

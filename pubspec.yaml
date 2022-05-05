@@ -64,6 +64,9 @@ dependencies:
   firebase_auth:
   google_sign_in:
 
+  # For login check
+  shared_preferences:
+
   #Expandable Floating action Button
   #  flutter_speed_dial: ^5.1.0
 
