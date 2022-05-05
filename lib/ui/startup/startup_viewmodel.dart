@@ -31,9 +31,9 @@ class StartupViewModel extends BaseViewModel{
 
     // Check whether user already logged in
     if(await checkUserLoggedIn()){
-      _navigationService.navigateTo(Routes.dashboardView);
+      _navigationService.pushNamedAndRemoveUntil(Routes.dashboardView);
     }else{
-      _navigationService.navigateTo(Routes.loginView);
+      _navigationService.pushNamedAndRemoveUntil(Routes.loginView);
     }
 
     // For(Conversation conversation in conversationListStream.)
@@ -41,7 +41,7 @@ class StartupViewModel extends BaseViewModel{
   }
 
   void doSomething(){
-    _navigationService.navigateTo(Routes.signupView);
+    _navigationService.pushNamedAndRemoveUntil(Routes.signupView);
   }
 
   Future<bool> checkUserLoggedIn() async {
